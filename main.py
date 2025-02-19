@@ -9,46 +9,35 @@ def ft_write(soup: BeautifulSoup, filename: str) -> None:
 def get_html_requests(url):
     r = requests.get(url)
     if r.status_code == 200:
+        print(f"[  {r.status_code}  ] Erreur succsses a {url}")
         return r
     else:
         print(f"[  {r.status_code}  ] Erreur requets a {url}")
-        return r.status_code
+        return r
 
-def link_update_css(soup , dommain):
+def ping(url):
+    r = requests.get(url)
+    return r.status_code
+
+def link_update_css(soup, dommain):
     for i in soup.find_all("link"):
-        i["href"] =  dommain+i["href"]
-    return soup
+        href = i.get('href')
+        
+        if href != None:
+            if ping(dommain+href) == 200:
+                i['href']= dommain+i["href"]
+            #....
 
-def link_update_img(soup , dommain):
-    for a in soup.find_all("img"):
-        a["src"] = dommain + a["src"]
-    return soup
-
-def link_update_a(soup , dommain):
-    for a in soup.find_all("a"):
-        a["href"] = dommain + a["href"]
     return soup
 
 def main(argc,argv):
     #url = input("Rentre une url cible : ")
-    url = "https://preprod.sagesfemmesdemaia.fr/login#login"
-    dommain = "https://preprod.sagesfemmesdemaia.fr"
+    url = "https://www.celignis.com/output/login.php"
+    dommain = "https://www.celignis.com/output/"
 
     soup =  BeautifulSoup(get_html_requests(url).text,"lxml")
-
     soup = link_update_css(soup,dommain) #mes a jour les liens css
-    soup = link_update_img(soup,dommain) #mes a jour les liens img
-    soup = link_update_a(soup,dommain) #mes a jour les liens a
-
     ft_write(soup,"index.html")
 
 if __name__ == '__main__':
-    print('''      
- ██████╗██╗   ██╗██████╗ ███████╗██████╗ ██████╗  █████╗ ██╗████████╗
-██╔════╝╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔══██╗██║╚══██╔══╝
-██║      ╚████╔╝ ██████╔╝█████╗  ██████╔╝██████╔╝███████║██║   ██║   
-██║       ╚██╔╝  ██╔══██╗██╔══╝  ██╔══██╗██╔══██╗██╔══██║██║   ██║   
-╚██████╗   ██║   ██████╔╝███████╗██║  ██║██████╔╝██║  ██║██║   ██║   
- ╚═════╝   ╚═╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝   ╚═╝                                                           
-    ''')
     main(len(sys.argv),sys.argv) 
